@@ -4,6 +4,8 @@
   "description": "a scroller for canvas, based on IScroll, supports Mutil Touches",
   "main": "src/weScroll.js",
   "scripts": {
+    "build": "rollup -c",
+    "build:es6": "rollup src/weScroll.js -f cjs -o dist/weScroll.es6.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -11,5 +13,11 @@
     "canvas"
   ],
   "author": "ShenZhenDev@wepiao",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-latest": "^6.24.1",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  }
 }

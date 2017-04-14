@@ -1,0 +1,15 @@
+{
+  "name": "wescroll",
+  "version": "1.0.0",
+  "description": "a scroller for canvas, based on IScroll, supports Mutil Touches",
+  "main": "src/weScroll.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "scroller",
+    "canvas"
+  ],
+  "author": "ShenZhenDev@wepiao",
+  "license": "MIT"
+}

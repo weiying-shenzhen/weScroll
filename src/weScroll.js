@@ -21,7 +21,6 @@ const defaultOptions = {
   disableMouse: hasPointer || hasTouch,
   startX: 0,
   startY: 0,
-  scrollY: true,
   directionLockThreshold: 5,
 
   bounce: true,
@@ -32,8 +31,18 @@ const defaultOptions = {
 
   bindToWrapper: typeof window.onmousedown === "undefined"
 }
-
-export default class WeScroll {
+/**
+ * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
+ *
+ */
+class WeScroll {
+  /**
+   * create a WeScroll instance
+   *
+   * @param  {String|HTMLElement} el     - wrapper of Canvas
+   * @param  {Obect} options             - options for settings
+   *
+   */
   constructor(el, options) {
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el
     this.options = assign({}, defaultOptions, options)
@@ -54,7 +63,7 @@ export default class WeScroll {
     this._init()
     this.refresh()
 
-    this.scrollTo(this.options.startX, this.options.startY)
+    this._scrollTo(this.options.startX, this.options.startY)
     this.enable()
     this._ticking = false
   }
@@ -186,11 +195,11 @@ export default class WeScroll {
     this.endTime = Date.now()
 
     // reset if we are outside of the boundaries
-    if (this.resetPosition(this.options.bounceTime)) {
+    if (this._resetPosition(this.options.bounceTime)) {
       return
     }
 
-    this.scrollTo(newX, newY) // ensures that the last position is rounded
+    this._scrollTo(newX, newY) // ensures that the last position is rounded
 
     // we scrolled less than 10 pixels
     if (!this.moved) {
@@ -208,7 +217,7 @@ export default class WeScroll {
         easing = ease.quadratic
       }
 
-      this.scrollTo(newX, newY, time, easing)
+      this._scrollTo(newX, newY, time, easing)
       return
     }
 
@@ -223,7 +232,7 @@ export default class WeScroll {
       that.refresh()
     }, this.options.resizePolling)
   }
-  resetPosition(time) {
+  _resetPosition(time) {
     let x = this.x,
       y = this.y
 
@@ -243,16 +252,28 @@ export default class WeScroll {
 
     if (x === this.x && y === this.y) return false
 
-    this.scrollTo(x, y, time, ease.circular)
+    this._scrollTo(x, y, time, ease.circular)
 
     return true
   }
+  /**
+   * set disable
+   *
+   */
   disable() {
     this.enabled = false
   }
+  /**
+   * set enable
+   *
+   */
   enable() {
     this.enabled = true
   }
+  /**
+   * refresh scroller setttings
+   *
+   */
   refresh() {
     this.wrapperWidth = this.wrapperWidth || this.wrapper.clientWidth
     this.wrapperHeight = this.wrapperHeight || this.wrapper.clientHeight
@@ -330,7 +351,7 @@ export default class WeScroll {
 
     this.scale = scale
 
-    this.scrollTo(x, y, 0)
+    this._scrollTo(x, y, 0)
   }
   _zoomEnd(e) {
     if (!this.enabled) return
@@ -371,7 +392,7 @@ export default class WeScroll {
     }
 
     if (this.x !== newX || this.y !== newY) {
-      this.scrollTo(newX, newY, this.options.bounceTime)
+      this._scrollTo(newX, newY, this.options.bounceTime)
     }
 
     this.scaled = false
@@ -434,7 +455,7 @@ export default class WeScroll {
     this.isAnimating = true
     step()
   }
-  scrollTo(x, y, time, easing) {
+  _scrollTo(x, y, time, easing) {
     easing = easing || ease.circular
 
     if (!time) {
@@ -443,7 +464,16 @@ export default class WeScroll {
       this._animate(x, y, time, easing)
     }
   }
-  scrollToPoint(x, y, time, easing) {
+  /**
+   * scroll to specific postion of scroller
+   *
+   * @param  {Number} x        - offset x
+   * @param  {Number} y        - offset y
+   * @param  {Number} time     - transition time
+   * @param  {Function} easing - easing funtions
+   *
+   */
+  scrollTo(x, y, time, easing) {
     time = time === undefined ? this.options.duration : time
     easing = easing || ease.circular
 
@@ -462,8 +492,17 @@ export default class WeScroll {
       y = this.maxScrollY
     }
 
-    this.scrollTo(x, y, time, easing)
+    this._scrollTo(x, y, time, easing)
   }
+  /**
+   * zoom to specific postion of scroller and scale Canvas
+   *
+   * @param  {Number} scale    - scale
+   * @param  {Number} x        - offset x
+   * @param  {Number} y        - offset y
+   * @param  {Number} duration - transition time
+   *
+   */
   zoom(scale, x, y, duration) {
     if (scale < this.options.zoomMin) {
       scale = this.options.zoomMin
@@ -585,3 +624,5 @@ export default class WeScroll {
     }
   }
 }
+
+export default WeScroll

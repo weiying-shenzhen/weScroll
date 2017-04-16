@@ -1,4 +1,8 @@
-'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.WeScroll = factory());
+}(this, (function () { 'use strict';
 
 var assign = void 0;
 if (typeof Object.assign !== 'function') {
@@ -181,7 +185,6 @@ var defaultOptions = {
   disableMouse: hasPointer || hasTouch,
   startX: 0,
   startY: 0,
-  scrollY: true,
   directionLockThreshold: 5,
 
   bounce: true,
@@ -192,8 +195,19 @@ var defaultOptions = {
 
   bindToWrapper: typeof window.onmousedown === "undefined"
 };
+/**
+ * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
+ *
+ */
 
 var WeScroll = function () {
+  /**
+   * create a WeScroll instance
+   *
+   * @param  {String|HTMLElement} el     - wrapper of Canvas
+   * @param  {Obect} options             - options for settings
+   *
+   */
   function WeScroll(el, options) {
     classCallCheck(this, WeScroll);
 
@@ -216,7 +230,7 @@ var WeScroll = function () {
     this._init();
     this.refresh();
 
-    this.scrollTo(this.options.startX, this.options.startY);
+    this._scrollTo(this.options.startX, this.options.startY);
     this.enable();
     this._ticking = false;
   }
@@ -361,11 +375,11 @@ var WeScroll = function () {
       this.endTime = Date.now();
 
       // reset if we are outside of the boundaries
-      if (this.resetPosition(this.options.bounceTime)) {
+      if (this._resetPosition(this.options.bounceTime)) {
         return;
       }
 
-      this.scrollTo(newX, newY); // ensures that the last position is rounded
+      this._scrollTo(newX, newY); // ensures that the last position is rounded
 
       // we scrolled less than 10 pixels
       if (!this.moved) {
@@ -383,7 +397,7 @@ var WeScroll = function () {
           easing = ease.quadratic;
         }
 
-        this.scrollTo(newX, newY, time, easing);
+        this._scrollTo(newX, newY, time, easing);
         return;
       }
 
@@ -401,8 +415,8 @@ var WeScroll = function () {
       }, this.options.resizePolling);
     }
   }, {
-    key: 'resetPosition',
-    value: function resetPosition(time) {
+    key: '_resetPosition',
+    value: function _resetPosition(time) {
       var x = this.x,
           y = this.y;
 
@@ -422,20 +436,35 @@ var WeScroll = function () {
 
       if (x === this.x && y === this.y) return false;
 
-      this.scrollTo(x, y, time, ease.circular);
+      this._scrollTo(x, y, time, ease.circular);
 
       return true;
     }
+    /**
+     * set disable
+     *
+     */
+
   }, {
     key: 'disable',
     value: function disable() {
       this.enabled = false;
     }
+    /**
+     * set enable
+     *
+     */
+
   }, {
     key: 'enable',
     value: function enable() {
       this.enabled = true;
     }
+    /**
+     * refresh scroller setttings
+     *
+     */
+
   }, {
     key: 'refresh',
     value: function refresh() {
@@ -522,7 +551,7 @@ var WeScroll = function () {
 
       this.scale = scale;
 
-      this.scrollTo(x, y, 0);
+      this._scrollTo(x, y, 0);
     }
   }, {
     key: '_zoomEnd',
@@ -566,7 +595,7 @@ var WeScroll = function () {
       }
 
       if (this.x !== newX || this.y !== newY) {
-        this.scrollTo(newX, newY, this.options.bounceTime);
+        this._scrollTo(newX, newY, this.options.bounceTime);
       }
 
       this.scaled = false;
@@ -635,8 +664,8 @@ var WeScroll = function () {
       step();
     }
   }, {
-    key: 'scrollTo',
-    value: function scrollTo(x, y, time, easing) {
+    key: '_scrollTo',
+    value: function _scrollTo(x, y, time, easing) {
       easing = easing || ease.circular;
 
       if (!time) {
@@ -645,9 +674,19 @@ var WeScroll = function () {
         this._animate(x, y, time, easing);
       }
     }
+    /**
+     * scroll to specific postion of scroller
+     *
+     * @param  {Number} x        - offset x
+     * @param  {Number} y        - offset y
+     * @param  {Number} time     - transition time
+     * @param  {Function} easing - easing funtions
+     *
+     */
+
   }, {
-    key: 'scrollToPoint',
-    value: function scrollToPoint(x, y, time, easing) {
+    key: 'scrollTo',
+    value: function scrollTo(x, y, time, easing) {
       time = time === undefined ? this.options.duration : time;
       easing = easing || ease.circular;
 
@@ -666,8 +705,18 @@ var WeScroll = function () {
         y = this.maxScrollY;
       }
 
-      this.scrollTo(x, y, time, easing);
+      this._scrollTo(x, y, time, easing);
     }
+    /**
+     * zoom to specific postion of scroller and scale Canvas
+     *
+     * @param  {Number} scale    - scale
+     * @param  {Number} x        - offset x
+     * @param  {Number} y        - offset y
+     * @param  {Number} duration - transition time
+     *
+     */
+
   }, {
     key: 'zoom',
     value: function zoom(scale, x, y, duration) {
@@ -798,4 +847,6 @@ var WeScroll = function () {
   return WeScroll;
 }();
 
-module.exports = WeScroll;
+return WeScroll;
+
+})));

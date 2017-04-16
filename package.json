@@ -6,6 +6,10 @@
   "scripts": {
     "build": "rollup -c",
     "build:es6": "rollup src/weScroll.js -f cjs -o dist/weScroll.es6.js",
+    "pro": "NODE_ENV=production rollup -c",
+    "static": "cd examples && python -m SimpleHTTPServer 8000",
+    "update": "npm run build && npm run build:es6 && npm run pro && npm run doc",
+    "doc": "./node_modules/.bin/jsdoc2md -t template.md -f src/*.js > README.md",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,7 +21,9 @@
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-latest": "^6.24.1",
+    "jsdoc-to-markdown": "^3.0.0",
     "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-node-resolve": "^3.0.0"
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-uglify": "^1.0.1"
   }
 }

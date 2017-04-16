@@ -1,14 +1,19 @@
 import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
+import uglify from 'rollup-plugin-uglify';
+
+const isProduction = process.env.NODE_ENV === 'production'
 
 export default {
   entry: 'src/weScroll.js',
-  format: 'cjs',
+  moduleName: "WeScroll",
+  format: 'umd',
   plugins: [
     resolve(),
     babel({
-      exclude: 'node_modules/**' // only transpile our source code
-    })
+      exclude: 'node_modules/**'
+    }),
+    ( isProduction && uglify())
   ],
-  dest: 'dist/weScroll.js'
+  dest: isProduction ? 'dist/weScroll.min.js' : 'dist/weScroll.js'
 };

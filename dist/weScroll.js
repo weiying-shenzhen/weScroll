@@ -193,7 +193,7 @@ var defaultOptions = {
 
   preventDefault: true,
 
-  bindToWrapper: typeof window.onmousedown === "undefined"
+  bindToWrapper: true
 };
 /**
  * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
@@ -468,8 +468,8 @@ var WeScroll = function () {
   }, {
     key: 'refresh',
     value: function refresh() {
-      this.wrapperWidth = this.wrapperWidth || this.wrapper.clientWidth;
-      this.wrapperHeight = this.wrapperHeight || this.wrapper.clientHeight;
+      this.wrapperWidth = this.wrapper.clientWidth;
+      this.wrapperHeight = this.wrapper.clientHeight;
 
       this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
       this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
@@ -482,7 +482,7 @@ var WeScroll = function () {
       this.directionX = 0;
       this.directionY = 0;
 
-      this.wrapperOffset = this.wrapperOffset || offset(this.wrapper);
+      this.wrapperOffset = offset(this.wrapper);
 
       this.observer.trigger('refresh');
     }

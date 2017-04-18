@@ -29,7 +29,7 @@ const defaultOptions = {
 
   preventDefault: true,
 
-  bindToWrapper: typeof window.onmousedown === "undefined"
+  bindToWrapper: true
 }
 /**
  * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
@@ -275,8 +275,8 @@ class WeScroll {
    *
    */
   refresh() {
-    this.wrapperWidth = this.wrapperWidth || this.wrapper.clientWidth
-    this.wrapperHeight = this.wrapperHeight || this.wrapper.clientHeight
+    this.wrapperWidth = this.wrapper.clientWidth
+    this.wrapperHeight = this.wrapper.clientHeight
 
     this.scrollerWidth = Math.round(this.options.contentWidth * this.scale)
     this.scrollerHeight = Math.round(this.options.contentHeight * this.scale)
@@ -289,7 +289,7 @@ class WeScroll {
     this.directionX = 0
     this.directionY = 0
 
-    this.wrapperOffset = this.wrapperOffset || offset(this.wrapper)
+    this.wrapperOffset = offset(this.wrapper)
 
     this.observer.trigger('refresh')
   }

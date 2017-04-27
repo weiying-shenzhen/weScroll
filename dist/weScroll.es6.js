@@ -150,6 +150,8 @@ const defaultOptions = {
   startY: 0,
   directionLockThreshold: 5,
 
+  margin: 0,
+
   bounce: true,
   bounceTime: 480,
   duration: 300,
@@ -174,6 +176,11 @@ class WeScroll {
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
     this.options = assign$1({}, defaultOptions, options);
     this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
+    const margin = this.options.margin;
+    this.options.marginTop = this.options.marginTop || margin;
+    this.options.marginBottom = this.options.marginBottom || margin;
+    this.options.marginLeft = this.options.marginLeft || margin;
+    this.options.marginRight = this.options.marginRight || margin;
 
     if (this.options.tap === true) {
       this.options.tap = 'tap';
@@ -183,13 +190,10 @@ class WeScroll {
     this.y = 0;
     this.directionX = 0;
     this.directionY = 0;
-    this.boundaryPadding = this.options.boundaryPadding || 20;
-
     this.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);
 
     this._init();
     this.refresh();
-
     this._scrollTo(this.options.startX, this.options.startY);
     this.enable();
     this._ticking = false;
@@ -322,7 +326,7 @@ class WeScroll {
     this.endTime = Date.now();
 
     // reset if we are outside of the boundaries
-    if (this._resetPosition(this.options.bounceTime)) {
+    if (this.resetPosition(this.options.bounceTime)) {
       return
     }
 
@@ -340,7 +344,7 @@ class WeScroll {
 
     if (newX !== this.x || newY !== this.y) {
       // change easing function when scroller goes out of the boundaries
-      if (newX > this.boundaryPadding || newX < this.maxScrollX || newY > this.boundaryPadding || newY < this.maxScrollY) {
+      if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
         easing = ease.quadratic;
       }
 
@@ -359,23 +363,29 @@ class WeScroll {
       that.refresh();
     }, this.options.resizePolling);
   }
-  _resetPosition(time) {
-    let x = this.x,
-      y = this.y;
+  _adjustPosition(x, y){
+      let newX = x,
+        newY = y;
 
-    time = time || 0;
+      if (newX > this.options.marginLeft) {
+        newX = this.options.marginLeft;
+      } else if (newX < this.maxScrollX) {
+        newX = this.maxScrollX;
+      }
 
-    if (this.x > this.boundaryPadding) {
-      x = this.boundaryPadding;
-    } else if (this.x < this.maxScrollX) {
-      x = this.maxScrollX;
-    }
-
-    if (this.y > this.boundaryPadding) {
-      y = this.boundaryPadding;
-    } else if (this.y < this.maxScrollY) {
-      y = this.maxScrollY;
-    }
+      if (newY > this.options.marginTop) {
+        newY = this.options.marginTop;
+      } else if (newY < this.maxScrollY) {
+        newY = this.maxScrollY;
+      }
+      return [newX, newY]
+  }
+  /**
+   * reset scroller's position, if out of boundary reset it back
+   *
+   */
+  resetPosition(time = 0) {
+    const [x, y] = this._adjustPosition(this.x, this.y);
 
     if (x === this.x && y === this.y) return false
 
@@ -408,9 +418,8 @@ class WeScroll {
     this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
     this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
 
-    this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.boundaryPadding;
-    this.maxScrollY = this.wrapperHeight - this.scrollerHeight - this.boundaryPadding;
-    this.maxScrollY = Math.min(this.boundaryPadding, this.maxScrollY);
+    this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight;
+    this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom);
 
     this.endTime = 0;
     this.directionX = 0;
@@ -487,9 +496,6 @@ class WeScroll {
       e.preventDefault();
     }
 
-    let newX, newY,
-      lastScale;
-
     this.initiated = 0;
 
     if (this.scale > this.options.zoomMax) {
@@ -501,22 +507,11 @@ class WeScroll {
     // Update boundaries
     this.refresh();
 
-    lastScale = this.scale / this.startScale;
+    const lastScale = this.scale / this.startScale;
+    const x = this.originX - this.originX * lastScale + this.startX;
+    const y = this.originY - this.originY * lastScale + this.startY;
 
-    newX = this.originX - this.originX * lastScale + this.startX;
-    newY = this.originY - this.originY * lastScale + this.startY;
-
-    if (newX > this.boundaryPadding) {
-      newX = this.boundaryPadding;
-    } else if (newX < this.maxScrollX) {
-      newX = this.maxScrollX;
-    }
-
-    if (newY > this.boundaryPadding) {
-      newY = this.boundaryPadding;
-    } else if (newY < this.maxScrollY) {
-      newY = this.maxScrollY;
-    }
+    const [newX, newY] = this._adjustPosition(x, y);
 
     if (this.x !== newX || this.y !== newY) {
       this._scrollTo(newX, newY, this.options.bounceTime);
@@ -533,21 +528,11 @@ class WeScroll {
     destX = this.wrapperWidth / 2 - destX;
     destY = this.wrapperHeight / 2 - destY;
 
-    if (destX > this.boundaryPadding) {
-      destX = this.boundaryPadding;
-    } else if (destX < this.maxScrollX) {
-      destY = this.maxScrollX;
-    }
-
-    if (destY > this.boundaryPadding) {
-      destY = this.boundaryPadding;
-    } else if (destY < this.maxScrollY) {
-      destY = this.maxScrollY;
-    }
+    const [newX, newY] = this._adjustPosition(destX, destY);
 
     return {
-      x: destX,
-      y: destY
+      x: newX,
+      y: newY
     }
   }
   _animate(destX, destY, duration, easingFn) {
@@ -607,19 +592,9 @@ class WeScroll {
     x = -x * this.scale + this.wrapperWidth / 2;
     y = -y * this.scale + this.wrapperHeight / 2;
 
-    if (x > this.boundaryPadding) {
-      x = this.boundaryPadding;
-    } else if (x < this.maxScrollX) {
-      x = this.maxScrollX;
-    }
+    const [newX, newY] = this._adjustPosition(x, y);
 
-    if (y > this.boundaryPadding) {
-      y = this.boundaryPadding;
-    } else if (y < this.maxScrollY) {
-      y = this.maxScrollY;
-    }
-
-    this._scrollTo(x, y, time, easing);
+    this._scrollTo(newX, newY, time, easing);
   }
   /**
    * zoom to specific postion of scroller and scale Canvas

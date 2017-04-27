@@ -114,6 +114,70 @@ var createClass = function () {
   };
 }();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
+
 var Observer = function () {
   function Observer() {
     classCallCheck(this, Observer);
@@ -187,6 +251,8 @@ var defaultOptions = {
   startY: 0,
   directionLockThreshold: 5,
 
+  margin: 0,
+
   bounce: true,
   bounceTime: 480,
   duration: 300,
@@ -214,6 +280,11 @@ var WeScroll = function () {
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
     this.options = assign$1({}, defaultOptions, options);
     this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
+    var margin = this.options.margin;
+    this.options.marginTop = this.options.marginTop || margin;
+    this.options.marginBottom = this.options.marginBottom || margin;
+    this.options.marginLeft = this.options.marginLeft || margin;
+    this.options.marginRight = this.options.marginRight || margin;
 
     if (this.options.tap === true) {
       this.options.tap = 'tap';
@@ -223,13 +294,10 @@ var WeScroll = function () {
     this.y = 0;
     this.directionX = 0;
     this.directionY = 0;
-    this.boundaryPadding = this.options.boundaryPadding || 20;
-
     this.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);
 
     this._init();
     this.refresh();
-
     this._scrollTo(this.options.startX, this.options.startY);
     this.enable();
     this._ticking = false;
@@ -375,7 +443,7 @@ var WeScroll = function () {
       this.endTime = Date.now();
 
       // reset if we are outside of the boundaries
-      if (this._resetPosition(this.options.bounceTime)) {
+      if (this.resetPosition(this.options.bounceTime)) {
         return;
       }
 
@@ -393,7 +461,7 @@ var WeScroll = function () {
 
       if (newX !== this.x || newY !== this.y) {
         // change easing function when scroller goes out of the boundaries
-        if (newX > this.boundaryPadding || newX < this.maxScrollX || newY > this.boundaryPadding || newY < this.maxScrollY) {
+        if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
           easing = ease.quadratic;
         }
 
@@ -415,24 +483,38 @@ var WeScroll = function () {
       }, this.options.resizePolling);
     }
   }, {
-    key: '_resetPosition',
-    value: function _resetPosition(time) {
-      var x = this.x,
-          y = this.y;
+    key: '_adjustPosition',
+    value: function _adjustPosition(x, y) {
+      var newX = x,
+          newY = y;
 
-      time = time || 0;
-
-      if (this.x > this.boundaryPadding) {
-        x = this.boundaryPadding;
-      } else if (this.x < this.maxScrollX) {
-        x = this.maxScrollX;
+      if (newX > this.options.marginLeft) {
+        newX = this.options.marginLeft;
+      } else if (newX < this.maxScrollX) {
+        newX = this.maxScrollX;
       }
 
-      if (this.y > this.boundaryPadding) {
-        y = this.boundaryPadding;
-      } else if (this.y < this.maxScrollY) {
-        y = this.maxScrollY;
+      if (newY > this.options.marginTop) {
+        newY = this.options.marginTop;
+      } else if (newY < this.maxScrollY) {
+        newY = this.maxScrollY;
       }
+      return [newX, newY];
+    }
+    /**
+     * reset scroller's position, if out of boundary reset it back
+     *
+     */
+
+  }, {
+    key: 'resetPosition',
+    value: function resetPosition() {
+      var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      var _adjustPosition2 = this._adjustPosition(this.x, this.y),
+          _adjustPosition3 = slicedToArray(_adjustPosition2, 2),
+          x = _adjustPosition3[0],
+          y = _adjustPosition3[1];
 
       if (x === this.x && y === this.y) return false;
 
@@ -474,9 +556,8 @@ var WeScroll = function () {
       this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
       this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
 
-      this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.boundaryPadding;
-      this.maxScrollY = this.wrapperHeight - this.scrollerHeight - this.boundaryPadding;
-      this.maxScrollY = Math.min(this.boundaryPadding, this.maxScrollY);
+      this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight;
+      this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom);
 
       this.endTime = 0;
       this.directionX = 0;
@@ -562,10 +643,6 @@ var WeScroll = function () {
         e.preventDefault();
       }
 
-      var newX = void 0,
-          newY = void 0,
-          lastScale = void 0;
-
       this.initiated = 0;
 
       if (this.scale > this.options.zoomMax) {
@@ -577,22 +654,14 @@ var WeScroll = function () {
       // Update boundaries
       this.refresh();
 
-      lastScale = this.scale / this.startScale;
+      var lastScale = this.scale / this.startScale;
+      var x = this.originX - this.originX * lastScale + this.startX;
+      var y = this.originY - this.originY * lastScale + this.startY;
 
-      newX = this.originX - this.originX * lastScale + this.startX;
-      newY = this.originY - this.originY * lastScale + this.startY;
-
-      if (newX > this.boundaryPadding) {
-        newX = this.boundaryPadding;
-      } else if (newX < this.maxScrollX) {
-        newX = this.maxScrollX;
-      }
-
-      if (newY > this.boundaryPadding) {
-        newY = this.boundaryPadding;
-      } else if (newY < this.maxScrollY) {
-        newY = this.maxScrollY;
-      }
+      var _adjustPosition4 = this._adjustPosition(x, y),
+          _adjustPosition5 = slicedToArray(_adjustPosition4, 2),
+          newX = _adjustPosition5[0],
+          newY = _adjustPosition5[1];
 
       if (this.x !== newX || this.y !== newY) {
         this._scrollTo(newX, newY, this.options.bounceTime);
@@ -611,21 +680,14 @@ var WeScroll = function () {
       destX = this.wrapperWidth / 2 - destX;
       destY = this.wrapperHeight / 2 - destY;
 
-      if (destX > this.boundaryPadding) {
-        destX = this.boundaryPadding;
-      } else if (destX < this.maxScrollX) {
-        destY = this.maxScrollX;
-      }
-
-      if (destY > this.boundaryPadding) {
-        destY = this.boundaryPadding;
-      } else if (destY < this.maxScrollY) {
-        destY = this.maxScrollY;
-      }
+      var _adjustPosition6 = this._adjustPosition(destX, destY),
+          _adjustPosition7 = slicedToArray(_adjustPosition6, 2),
+          newX = _adjustPosition7[0],
+          newY = _adjustPosition7[1];
 
       return {
-        x: destX,
-        y: destY
+        x: newX,
+        y: newY
       };
     }
   }, {
@@ -693,19 +755,12 @@ var WeScroll = function () {
       x = -x * this.scale + this.wrapperWidth / 2;
       y = -y * this.scale + this.wrapperHeight / 2;
 
-      if (x > this.boundaryPadding) {
-        x = this.boundaryPadding;
-      } else if (x < this.maxScrollX) {
-        x = this.maxScrollX;
-      }
+      var _adjustPosition8 = this._adjustPosition(x, y),
+          _adjustPosition9 = slicedToArray(_adjustPosition8, 2),
+          newX = _adjustPosition9[0],
+          newY = _adjustPosition9[1];
 
-      if (y > this.boundaryPadding) {
-        y = this.boundaryPadding;
-      } else if (y < this.maxScrollY) {
-        y = this.maxScrollY;
-      }
-
-      this._scrollTo(x, y, time, easing);
+      this._scrollTo(newX, newY, time, easing);
     }
     /**
      * zoom to specific postion of scroller and scale Canvas

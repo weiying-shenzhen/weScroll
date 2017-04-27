@@ -38,6 +38,7 @@ weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
 
 * [WeScroll](#WeScroll)
     * [new WeScroll(el, options)](#new_WeScroll_new)
+    * [.resetPosition()](#WeScroll+resetPosition)
     * [.disable()](#WeScroll+disable)
     * [.enable()](#WeScroll+enable)
     * [.refresh()](#WeScroll+refresh)
@@ -55,6 +56,12 @@ create a WeScroll instance
 | el | <code>String</code> \| <code>HTMLElement</code> | wrapper of Canvas |
 | options | <code>Obect</code> | options for settings |
 
+<a name="WeScroll+resetPosition"></a>
+
+### weScroll.resetPosition()
+reset scroller's position, if out of boundary, reset it back
+
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
 <a name="WeScroll+disable"></a>
 
 ### weScroll.disable()

@@ -185,7 +185,7 @@ class WeScroll {
     this.moved = true
   }
   _end(e) {
-    if (this._ticking || !this.enabled) return
+    if (!this.enabled) return
 
     if (this.options.preventDefault) {
       e.preventDefault()

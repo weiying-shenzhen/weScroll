@@ -312,7 +312,7 @@ class WeScroll {
     this.moved = true;
   }
   _end(e) {
-    if (this._ticking || !this.enabled) return
+    if (!this.enabled) return
 
     if (this.options.preventDefault) {
       e.preventDefault();
@@ -381,7 +381,7 @@ class WeScroll {
       return [newX, newY]
   }
   /**
-   * reset scroller's position, if out of boundary reset it back
+   * reset scroller's position, if out of boundary, reset it back
    *
    */
   resetPosition(time = 0) {

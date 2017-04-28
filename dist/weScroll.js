@@ -429,7 +429,7 @@ var WeScroll = function () {
   }, {
     key: '_end',
     value: function _end(e) {
-      if (this._ticking || !this.enabled) return;
+      if (!this.enabled) return;
 
       if (this.options.preventDefault) {
         e.preventDefault();
@@ -502,7 +502,7 @@ var WeScroll = function () {
       return [newX, newY];
     }
     /**
-     * reset scroller's position, if out of boundary reset it back
+     * reset scroller's position, if out of boundary, reset it back
      *
      */
 

@@ -552,7 +552,13 @@ var WeScroll = function () {
     value: function refresh() {
       this.wrapperWidth = this.wrapper.clientWidth;
       this.wrapperHeight = this.wrapper.clientHeight;
-
+      this.wrapperOffset = offset(this.wrapper);
+      this._refreshScroller();
+      this.observer.trigger('refresh');
+    }
+  }, {
+    key: '_refreshScroller',
+    value: function _refreshScroller() {
       this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
       this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
 
@@ -562,10 +568,6 @@ var WeScroll = function () {
       this.endTime = 0;
       this.directionX = 0;
       this.directionY = 0;
-
-      this.wrapperOffset = offset(this.wrapper);
-
-      this.observer.trigger('refresh');
     }
   }, {
     key: '_render',
@@ -651,8 +653,7 @@ var WeScroll = function () {
         this.scale = this.options.zoomMin;
       }
 
-      // Update boundaries
-      this.refresh();
+      this._refreshScroller();
 
       var lastScale = this.scale / this.startScale;
       var x = this.originX - this.originX * lastScale + this.startX;
@@ -801,7 +802,7 @@ var WeScroll = function () {
         if (now >= destTime) {
           that.isAnimating = false;
           that.scale = scale;
-          that.refresh();
+          that._refreshScroller();
           dest = that._getDestinationPosition(x, y);
           that._render(dest.x, dest.y);
           return;
@@ -812,7 +813,7 @@ var WeScroll = function () {
 
         newScale = (scale - beginScale) * easing + beginScale;
         that.scale = newScale;
-        that.refresh();
+        that._refreshScroller();
 
         newDest = that._getDestinationPosition(x, y);
         that._render(newDest.x, newDest.y);

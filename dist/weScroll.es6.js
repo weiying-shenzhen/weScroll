@@ -414,7 +414,11 @@ class WeScroll {
   refresh() {
     this.wrapperWidth = this.wrapper.clientWidth;
     this.wrapperHeight = this.wrapper.clientHeight;
-
+    this.wrapperOffset = offset(this.wrapper);
+    this._refreshScroller();
+    this.observer.trigger('refresh');
+  }
+  _refreshScroller(){
     this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
     this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
 
@@ -424,10 +428,6 @@ class WeScroll {
     this.endTime = 0;
     this.directionX = 0;
     this.directionY = 0;
-
-    this.wrapperOffset = offset(this.wrapper);
-
-    this.observer.trigger('refresh');
   }
   _render(x, y) {
     if (this._ticking) return
@@ -504,8 +504,7 @@ class WeScroll {
       this.scale = this.options.zoomMin;
     }
 
-    // Update boundaries
-    this.refresh();
+    this._refreshScroller();
 
     const lastScale = this.scale / this.startScale;
     const x = this.originX - this.originX * lastScale + this.startX;
@@ -632,7 +631,7 @@ class WeScroll {
       if (now >= destTime) {
         that.isAnimating = false;
         that.scale = scale;
-        that.refresh();
+        that._refreshScroller();
         dest = that._getDestinationPosition(x, y);
         that._render(dest.x, dest.y);
         return
@@ -643,7 +642,7 @@ class WeScroll {
 
       newScale = (scale - beginScale) * easing + beginScale;
       that.scale = newScale;
-      that.refresh();
+      that._refreshScroller();
 
       newDest = that._getDestinationPosition(x, y);
       that._render(newDest.x, newDest.y);

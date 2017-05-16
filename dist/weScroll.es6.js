@@ -91,28 +91,27 @@ class Observer {
     this._events = [];
   }
   on(type, fn) {
-    if (!this._events[type]) {
-      this._events[type] = [];
+    let events = this._events[type];
+    if (!events) {
+      events = [];
     }
-    this._events[type].push(fn);
+    events.push(fn);
+    this._events[type] = events;
   }
   off(type, fn) {
-    if (!this._events[type]) return
-    const index = this._events[type].indexOf(fn);
+    const events = this._events[type];
+    if (!events) return
 
+    const index = events.indexOf(fn);
     if (index > -1) {
-      this._events[type].splice(index, 1);
+      events.splice(index, 1);
     }
   }
   trigger(type) {
-    if (!this._events[type]) return
-    let i = 0,
-      l = this._events[type].length;
-
-    if (!l) return
-
-    for (; i < l; i++) {
-      this._events[type][i].apply(this, [].slice.call(arguments, 1));
+    const events = this._events[type];
+    if (!events || !events.length) return
+    for (let i = 0; i < events.length; i++) {
+      events[i].apply(this, [].slice.call(arguments, 1));
     }
   }
 }
@@ -334,8 +333,13 @@ class WeScroll {
 
     // we scrolled less than 10 pixels
     if (!this.moved) {
-      if (this.options.tap) {
-        tap(e, this.options.tap);
+      if (this.options.tap && !this.scaled) {
+        if (!this.zoomEndTime ||
+          (this.zoomEndTime &&
+          ((this.zoomEndTime + 200) < Date.now()))
+        ) {
+          tap(e, this.options.tap);
+        }
       }
 
       this.observer.trigger('scrollCancel');
@@ -496,8 +500,6 @@ class WeScroll {
       e.preventDefault();
     }
 
-    this.initiated = 0;
-
     if (this.scale > this.options.zoomMax) {
       this.scale = this.options.zoomMax;
     } else if (this.scale < this.options.zoomMin) {
@@ -517,6 +519,7 @@ class WeScroll {
     }
 
     this.scaled = false;
+    this.zoomEndTime = Date.now();
 
     this.observer.trigger('zoomEnd');
   }
@@ -571,6 +574,7 @@ class WeScroll {
 
     if (!time) {
       this._render(x, y);
+      this.observer.trigger('scrollEnd');
     } else {
       this._animate(x, y, time, easing);
     }
@@ -654,16 +658,18 @@ class WeScroll {
     this.isAnimating = true;
     step();
   }
+  on(eventType, fn){
+    this.observer.on(eventType, fn);
+  }
+  off(eventType, fn){
+    this.observer.off(eventType, fn);
+  }
   _initEvents(remove) {
     const eventType = remove ? removeEvent : addEvent,
       target = this.options.bindToWrapper ? this.wrapper : window,
       handleFunc = this._handleEvent.bind(this);
 
     eventType(window, 'resize', handleFunc);
-
-    if (this.options.click) {
-      eventType(this.wrapper, 'click', handleFunc, true);
-    }
 
     if (!this.options.disableMouse) {
       eventType(this.wrapper, 'mousedown', handleFunc);

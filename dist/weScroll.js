@@ -188,32 +188,31 @@ var Observer = function () {
   createClass(Observer, [{
     key: "on",
     value: function on(type, fn) {
-      if (!this._events[type]) {
-        this._events[type] = [];
+      var events = this._events[type];
+      if (!events) {
+        events = [];
       }
-      this._events[type].push(fn);
+      events.push(fn);
+      this._events[type] = events;
     }
   }, {
     key: "off",
     value: function off(type, fn) {
-      if (!this._events[type]) return;
-      var index = this._events[type].indexOf(fn);
+      var events = this._events[type];
+      if (!events) return;
 
+      var index = events.indexOf(fn);
       if (index > -1) {
-        this._events[type].splice(index, 1);
+        events.splice(index, 1);
       }
     }
   }, {
     key: "trigger",
     value: function trigger(type) {
-      if (!this._events[type]) return;
-      var i = 0,
-          l = this._events[type].length;
-
-      if (!l) return;
-
-      for (; i < l; i++) {
-        this._events[type][i].apply(this, [].slice.call(arguments, 1));
+      var events = this._events[type];
+      if (!events || !events.length) return;
+      for (var i = 0; i < events.length; i++) {
+        events[i].apply(this, [].slice.call(arguments, 1));
       }
     }
   }]);
@@ -451,8 +450,10 @@ var WeScroll = function () {
 
       // we scrolled less than 10 pixels
       if (!this.moved) {
-        if (this.options.tap) {
-          tap(e, this.options.tap);
+        if (this.options.tap && !this.scaled) {
+          if (!this.zoomEndTime || this.zoomEndTime && this.zoomEndTime + 200 < Date.now()) {
+            tap(e, this.options.tap);
+          }
         }
 
         this.observer.trigger('scrollCancel');
@@ -645,8 +646,6 @@ var WeScroll = function () {
         e.preventDefault();
       }
 
-      this.initiated = 0;
-
       if (this.scale > this.options.zoomMax) {
         this.scale = this.options.zoomMax;
       } else if (this.scale < this.options.zoomMin) {
@@ -669,6 +668,7 @@ var WeScroll = function () {
       }
 
       this.scaled = false;
+      this.zoomEndTime = Date.now();
 
       this.observer.trigger('zoomEnd');
     }
@@ -733,6 +733,7 @@ var WeScroll = function () {
 
       if (!time) {
         this._render(x, y);
+        this.observer.trigger('scrollEnd');
       } else {
         this._animate(x, y, time, easing);
       }
@@ -826,6 +827,16 @@ var WeScroll = function () {
       step();
     }
   }, {
+    key: 'on',
+    value: function on(eventType, fn) {
+      this.observer.on(eventType, fn);
+    }
+  }, {
+    key: 'off',
+    value: function off(eventType, fn) {
+      this.observer.off(eventType, fn);
+    }
+  }, {
     key: '_initEvents',
     value: function _initEvents(remove) {
       var eventType = remove ? removeEvent : addEvent,
@@ -833,10 +844,6 @@ var WeScroll = function () {
           handleFunc = this._handleEvent.bind(this);
 
       eventType(window, 'resize', handleFunc);
-
-      if (this.options.click) {
-        eventType(this.wrapper, 'click', handleFunc, true);
-      }
 
       if (!this.options.disableMouse) {
         eventType(this.wrapper, 'mousedown', handleFunc);

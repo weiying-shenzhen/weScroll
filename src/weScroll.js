@@ -532,6 +532,12 @@ class WeScroll {
     this.isAnimating = true
     step()
   }
+  on(eventType, fn){
+    this.observer.on(eventType, fn)
+  }
+  off(eventType, fn){
+    this.observer.off(eventType, fn)
+  }
   _initEvents(remove) {
     const eventType = remove ? removeEvent : addEvent,
       target = this.options.bindToWrapper ? this.wrapper : window,

@@ -3,28 +3,27 @@ export default class Observer {
     this._events = []
   }
   on(type, fn) {
-    if (!this._events[type]) {
-      this._events[type] = []
+    let events = this._events[type]
+    if (!events) {
+      events = []
     }
-    this._events[type].push(fn)
+    events.push(fn)
+    this._events[type] = events
   }
   off(type, fn) {
-    if (!this._events[type]) return
-    const index = this._events[type].indexOf(fn)
+    const events = this._events[type]
+    if (!events) return
 
+    const index = events.indexOf(fn)
     if (index > -1) {
-      this._events[type].splice(index, 1)
+      events.splice(index, 1)
     }
   }
   trigger(type) {
-    if (!this._events[type]) return
-    let i = 0,
-      l = this._events[type].length
-
-    if (!l) return
-
-    for (; i < l; i++) {
-      this._events[type][i].apply(this, [].slice.call(arguments, 1))
+    const events = this._events[type]
+    if (!events || !events.length) return
+    for (let i = 0; i < events.length; i++) {
+      events[i].apply(this, [].slice.call(arguments, 1))
     }
   }
 }

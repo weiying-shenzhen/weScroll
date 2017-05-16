@@ -207,8 +207,13 @@ class WeScroll {
 
     // we scrolled less than 10 pixels
     if (!this.moved) {
-      if (this.options.tap) {
-        tap(e, this.options.tap)
+      if (this.options.tap && !this.scaled) {
+        if (!this.zoomEndTime ||
+          (this.zoomEndTime &&
+          ((this.zoomEndTime + 200) < Date.now()))
+        ) {
+          tap(e, this.options.tap);
+        }
       }
 
       this.observer.trigger('scrollCancel')
@@ -369,8 +374,6 @@ class WeScroll {
       e.preventDefault()
     }
 
-    this.initiated = 0
-
     if (this.scale > this.options.zoomMax) {
       this.scale = this.options.zoomMax
     } else if (this.scale < this.options.zoomMin) {
@@ -390,6 +393,7 @@ class WeScroll {
     }
 
     this.scaled = false
+    this.zoomEndTime = Date.now()
 
     this.observer.trigger('zoomEnd')
   }
@@ -444,6 +448,7 @@ class WeScroll {
 
     if (!time) {
       this._render(x, y)
+      this.observer.trigger('scrollEnd')
     } else {
       this._animate(x, y, time, easing)
     }
@@ -533,10 +538,6 @@ class WeScroll {
       handleFunc = this._handleEvent.bind(this)
 
     eventType(window, 'resize', handleFunc)
-
-    if (this.options.click) {
-      eventType(this.wrapper, 'click', handleFunc, true)
-    }
 
     if (!this.options.disableMouse) {
       eventType(this.wrapper, 'mousedown', handleFunc)

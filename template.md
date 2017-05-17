@@ -26,6 +26,10 @@ const defaultConfig = {
 const scroller = new WeScroll(wrapper, defaultConfig)
 scroller.zoom(2)
 
+# To do
+
+- Support css transform
+
 ```
 # API reference
 

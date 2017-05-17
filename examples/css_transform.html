@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>scroll</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <style type="text/css">
+    body{
+      margin: 0;
+    }
+    #container{
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    .wrapper{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      width: 200px;
+      height: 200px;
+    }
+    .content{
+      width: 100%;
+      height: 100%;
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div class="wrapper">
+    <div class="content"></div>
+  </div>
+</div>
+<script type="text/javascript" src="./lib/weScroll.min.js"></script>
+<script type="text/javascript">
+window.onload = function(){
+  var wrapper = document.querySelector(".wrapper");
+  var target = wrapper.children[0];
+  var render = function(x,y,scale){
+    target.style.transform = "translate3d(" + x + "px," + y +"px, 0px) scale("+ scale +")";
+  }
+  var scroller = new WeScroll(wrapper, {
+    tap: true,
+    disablePointer: true,
+    disableTouch: false,
+    disableMouse: false,
+    zoom: true,
+    zoomMin: 0.5,
+    startZoom: 1,
+    zoomMax: 2,
+    contentWidth: 250,
+    contentHeight: 250,
+    render: render,
+  });
+  setTimeout(function(){
+    scroller.zoom(1.5);
+  }, 300)
+}
+</script>
+</body>
+</html>

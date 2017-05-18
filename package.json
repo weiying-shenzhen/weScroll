@@ -1,5 +1,5 @@
 {
-  "name": "wescroll",
+  "name": "we-scroll",
   "version": "1.0.0",
   "description": "a scroller for canvas, based on IScroll, supports Mutil Touches",
   "main": "src/weScroll.js",
@@ -13,12 +13,20 @@
     "doc": "./node_modules/.bin/jsdoc2md -t template.md -f src/*.js > README.md",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weiying-shenzhen/weScroll.git"
+  },
   "keywords": [
     "scroller",
     "canvas"
   ],
-  "author": "ShenZhenDev@wepiao",
+  "author": "henryluki",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/weiying-shenzhen/weScroll/issues"
+  },
+  "homepage": "https://github.com/weiying-shenzhen/weScroll#readme",
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-latest": "^6.24.1",

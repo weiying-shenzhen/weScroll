@@ -1,17 +1,17 @@
 # weScroll
-Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
+Touch scroll library for Muti Touch, Zooming, based on IScroll-zom 5
 
 # Features
 
 - `IScroll` API
 
-- `Canvas` scroller
+- Support `Canvas`
 
 # Usage
 
 ```javascript
 
-import WeScroll from 'weScroll'
+import WeScroll from 'we-scroll'
 
 const defaultConfig = {
     zoom: true,
@@ -19,18 +19,50 @@ const defaultConfig = {
     startZoom: 1,
     tap: true,
     zoomMax: 2,
-    contentWidth: 2000, # width of scrolling area
-    contentHeight: 1000, # height of scrolling area
+    contentWidth: 2000, # width of scrolling area, Canvas needs it
+    contentHeight: 1000, # height of scrolling area, Canvas needs it
     render: renderFunc # render function for updating Canvas
 }
 const scroller = new WeScroll(wrapper, defaultConfig)
 scroller.zoom(2)
 
-# To do
-
-- Support css transform
-
 ```
+### Some Configs
+
+**options.render**
+
+This is a callback function for weScroll. WeScroll calls  render function when data ( offset , scale ) change. This function take three arguments: `offsetX, offsetY, scale`.
+
+`offsetX`, `offsetY` represents scroller current offset, `scale` represents scroller current zoom ratio.
+
+Style change like css transform or Canvas redraw logic should run in this function. Such as:
+
+```javascript
+function(offsetX, offsetY, scale){
+  var transformStyle = "translate3d(" + offsetX + "px," + offsetY +"px, 0px) scale("+ scale +")";
+    target.style.transform = transformStyle;
+}
+```
+
+**options.contentWidth**
+
+Scroll content width，default value is wrapper's client width.
+
+**options.contentHeight**
+
+Scroll content height，default value is wrapper's client height.
+
+# Examples
+
+See examples:
+`npm run static`
+
+* <a href="examples/index.html">simple</a>
+
+* <a href="examples/canvas_zoom">canvas zoom</a>
+
+* <a href="examples/css_transform.html">css transform</a>
+
 # API reference
 
 {{>main}}

@@ -74,6 +74,21 @@ class WeScroll {
   _init() {
     this.observer = new Observer()
     this._initEvents()
+    this._initEaseFn()
+  }
+  _initEaseFn(){
+    const userEase = this.options.ease
+    const defaultFn = ease.circular
+    if (!userEase) {
+      this.easingFn = defaultFn
+      return
+    }
+    if (typeof userEase === "string") {
+      this.easingFn = ease[userEase] ? ease[userEase] : defaultFn
+    }
+    if (typeof userEase === "function") {
+      this.easingFn = userEase
+    }
   }
   destroy() {
     this._initEvents(true)
@@ -223,7 +238,7 @@ class WeScroll {
     if (newX !== this.x || newY !== this.y) {
       // change easing function when scroller goes out of the boundaries
       if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
-        easing = ease.quadratic
+        easing = this.easingFn
       }
 
       this._scrollTo(newX, newY, time, easing)
@@ -297,8 +312,8 @@ class WeScroll {
     this.observer.trigger('refresh')
   }
   _refreshScroller(){
-    this.scrollerWidth = Math.round(this.options.contentWidth * this.scale)
-    this.scrollerHeight = Math.round(this.options.contentHeight * this.scale)
+    this.scrollerWidth = Math.round((this.options.contentWidth || this.wrapperWidth) * this.scale)
+    this.scrollerHeight = Math.round((this.options.contentHeight || this.wrapperHeight) * this.scale)
 
     this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight
     this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom)
@@ -444,7 +459,7 @@ class WeScroll {
     step()
   }
   _scrollTo(x, y, time, easing) {
-    easing = easing || ease.circular
+    easing = easing || this.easingFn
 
     if (!time) {
       this._render(x, y)
@@ -464,7 +479,7 @@ class WeScroll {
    */
   scrollTo(x, y, time, easing) {
     time = time === undefined ? this.options.duration : time
-    easing = easing || ease.circular
+    easing = easing || this.easingFn
 
     x = -x * this.scale + this.wrapperWidth / 2
     y = -y * this.scale + this.wrapperHeight / 2
@@ -497,7 +512,7 @@ class WeScroll {
       beginScale = that.scale,
       startTime = Date.now(),
       destTime = startTime + duration,
-      easingFn = ease.circular
+      easingFn = this.easingFn
 
     function step() {
       let now = Date.now(),

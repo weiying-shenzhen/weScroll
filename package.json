@@ -1,7 +1,7 @@
 {
   "name": "we-scroll",
-  "version": "1.0.0",
-  "description": "a scroller for canvas, based on IScroll, supports Mutil Touches",
+  "version": "1.1.0",
+  "description": "Touch scroll library for Muti Touch, Zooming, based on IScroll-zom 5",
   "main": "src/weScroll.js",
   "scripts": {
     "build": "rollup -c",

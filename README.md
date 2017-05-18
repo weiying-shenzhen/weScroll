@@ -17,7 +17,7 @@ npm install we-scroll
 
 ```javascript
 
-import WeScroll from 'weScroll'
+import WeScroll from 'we-scroll'
 
 const defaultConfig = {
     zoom: true,

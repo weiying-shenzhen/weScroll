@@ -7,6 +7,12 @@ Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
 
 - `Canvas` scroller
 
+# Install
+
+```shell
+npm install we-scroll
+```
+
 # Usage
 
 ```javascript
@@ -34,7 +40,7 @@ scroller.zoom(2)
 ## WeScroll
 weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
 
-**Kind**: global class  
+**Kind**: global class
 
 * [WeScroll](#WeScroll)
     * [new WeScroll(el, options)](#new_WeScroll_new)
@@ -61,31 +67,31 @@ create a WeScroll instance
 ### weScroll.resetPosition()
 reset scroller's position, if out of boundary, reset it back
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 <a name="WeScroll+disable"></a>
 
 ### weScroll.disable()
 set disable
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 <a name="WeScroll+enable"></a>
 
 ### weScroll.enable()
 set enable
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 <a name="WeScroll+refresh"></a>
 
 ### weScroll.refresh()
 refresh scroller setttings
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 <a name="WeScroll+scrollTo"></a>
 
 ### weScroll.scrollTo(x, y, time, easing)
 scroll to specific postion of scroller
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -99,7 +105,7 @@ scroll to specific postion of scroller
 ### weScroll.zoom(scale, x, y, duration)
 zoom to specific postion of scroller and scale Canvas
 
-**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>  
+**Kind**: instance method of <code>[WeScroll](#WeScroll)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |

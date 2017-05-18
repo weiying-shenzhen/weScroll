@@ -307,6 +307,23 @@ var WeScroll = function () {
     value: function _init() {
       this.observer = new Observer();
       this._initEvents();
+      this._initEaseFn();
+    }
+  }, {
+    key: '_initEaseFn',
+    value: function _initEaseFn() {
+      var userEase = this.options.ease;
+      var defaultFn = ease.circular;
+      if (!userEase) {
+        this.easingFn = defaultFn;
+        return;
+      }
+      if (typeof userEase === "string") {
+        this.easingFn = ease[userEase] ? ease[userEase] : defaultFn;
+      }
+      if (typeof userEase === "function") {
+        this.easingFn = userEase;
+      }
     }
   }, {
     key: 'destroy',
@@ -463,7 +480,7 @@ var WeScroll = function () {
       if (newX !== this.x || newY !== this.y) {
         // change easing function when scroller goes out of the boundaries
         if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
-          easing = ease.quadratic;
+          easing = this.easingFn;
         }
 
         this._scrollTo(newX, newY, time, easing);
@@ -560,8 +577,8 @@ var WeScroll = function () {
   }, {
     key: '_refreshScroller',
     value: function _refreshScroller() {
-      this.scrollerWidth = Math.round(this.options.contentWidth * this.scale);
-      this.scrollerHeight = Math.round(this.options.contentHeight * this.scale);
+      this.scrollerWidth = Math.round((this.options.contentWidth || this.wrapperWidth) * this.scale);
+      this.scrollerHeight = Math.round((this.options.contentHeight || this.wrapperHeight) * this.scale);
 
       this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight;
       this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom);
@@ -729,7 +746,7 @@ var WeScroll = function () {
   }, {
     key: '_scrollTo',
     value: function _scrollTo(x, y, time, easing) {
-      easing = easing || ease.circular;
+      easing = easing || this.easingFn;
 
       if (!time) {
         this._render(x, y);
@@ -752,7 +769,7 @@ var WeScroll = function () {
     key: 'scrollTo',
     value: function scrollTo(x, y, time, easing) {
       time = time === undefined ? this.options.duration : time;
-      easing = easing || ease.circular;
+      easing = easing || this.easingFn;
 
       x = -x * this.scale + this.wrapperWidth / 2;
       y = -y * this.scale + this.wrapperHeight / 2;
@@ -791,7 +808,7 @@ var WeScroll = function () {
           beginScale = that.scale,
           startTime = Date.now(),
           destTime = startTime + duration,
-          easingFn = ease.circular;
+          easingFn = this.easingFn;
 
       function step() {
         var now = Date.now(),

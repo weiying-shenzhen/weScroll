@@ -19,9 +19,9 @@ const defaultConfig = {
     startZoom: 1,
     tap: true,
     zoomMax: 2,
-    contentWidth: 2000, # width of scrolling area, Canvas needs it
-    contentHeight: 1000, # height of scrolling area, Canvas needs it
-    render: renderFunc # render function for updating Canvas
+    contentWidth: 2000, //width of scrolling area, Canvas needs it
+    contentHeight: 1000, //height of scrolling area, Canvas needs it
+    render: renderFunc //render function for updating Canvas
 }
 const scroller = new WeScroll(wrapper, defaultConfig)
 scroller.zoom(2)

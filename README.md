@@ -43,6 +43,11 @@ function(offsetX, offsetY, scale){
     target.style.transform = transformStyle;
 }
 ```
+Please make sure the origin for transformations of an element need to be set to:
+
+```css
+transform-origin: 0px 0px 0px;
+```
 
 **options.contentWidth**
 
@@ -70,7 +75,7 @@ See examples:
 ## WeScroll
 weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
 
-**Kind**: global class  
+**Kind**: global class
 
 * [WeScroll](#WeScroll)
     * [new WeScroll(el, options)](#new_WeScroll_new)
@@ -97,31 +102,31 @@ create a WeScroll instance
 ### weScroll.resetPosition()
 reset scroller's position, if out of boundary, reset it back
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 <a name="WeScroll+disable"></a>
 
 ### weScroll.disable()
 set disable
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 <a name="WeScroll+enable"></a>
 
 ### weScroll.enable()
 set enable
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 <a name="WeScroll+refresh"></a>
 
 ### weScroll.refresh()
 refresh scroller setttings
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 <a name="WeScroll+scrollTo"></a>
 
 ### weScroll.scrollTo(x, y, time, easing)
 scroll to specific postion of scroller
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -135,7 +140,7 @@ scroll to specific postion of scroller
 ### weScroll.zoom(scale, x, y, duration)
 zoom to specific postion of scroller and scale Canvas
 
-**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)  
+**Kind**: instance method of [<code>WeScroll</code>](#WeScroll)
 
 | Param | Type | Description |
 | --- | --- | --- |

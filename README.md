@@ -68,6 +68,8 @@ See examples:
 
 * <a href="examples/css_transform.html">css transform</a>
 
+* <a href="examples/transform_preview.html">transform preview</a>
+
 # API reference
 
 <a name="WeScroll"></a>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>scroll</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <style type="text/css">
+    body{
+      margin: 0;
+    }
+    #container{
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    .wrapper{
+      background-color: #f5f5f5;
+    }
+    .iscroll-wrapper{
+      position: absolute;
+      bottom: 0;
+      background-color: #f5f5f5;
+    }
+    .content {
+      width: 100vw;
+      height: 250px;
+      background-color: red;
+      transform-origin: 0px 0px 0px;
+    }
+    .iscroll-content{
+      width: 100vw;
+      height: 250px;
+      text-align: center;
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+<div id="container">
+  <div class="wrapper">
+    <div class="content">
+      weScroll
+    </div>
+  </div>
+  <div class="iscroll-wrapper">
+    <div class="iscroll-content">
+      iscroll-zoom
+    </div>
+  </div>
+</div>
+<script async type="text/javascript" src="./lib/weScroll.min.js"></script>
+<script async type="text/javascript" src="./lib/iscroll-zoom.js"></script>
+<script type="text/javascript">
+window.onload = function(){
+  var wrapper = document.querySelector(".wrapper");
+  var iscrollEle = document.querySelector(".iscroll-wrapper");
+  var applyStyle = function(target, style, value){
+    target.style[style] = value;
+  }
+  var target = wrapper.children[0];
+  var lastScale = 1;
+  var render = function(x,y,scale){
+    var transformStyle = "translate3d(" + x + "px," + y +"px, 0px) scale("+ scale +")";
+    applyStyle(target, "transform", transformStyle);
+  }
+  var scroller = new WeScroll(wrapper, {
+    disablePointer: true,
+    disableTouch: false,
+    disableMouse: false,
+    zoom: true,
+    ease: "quadratic",
+    zoomMin: 0.5,
+    startZoom: 1,
+    zoomMax: 2,
+    bounceTime: 600,
+    render: render,
+    tap: true
+  });
+  var iscroll = new IScroll(iscrollEle, {
+    zoom: true,
+    scrollX: true,
+    disablePointer: true,
+    disableTouch: false,
+    disableMouse: false,
+    zoomMin: 0.5,
+    startZoom: 1,
+    zoomMax: 2,
+    click: true,
+    tap: true,
+  });
+  wrapper.addEventListener("tap", function(e){
+    scroller.zoom(2);
+  }, false)
+  iscrollEle.addEventListener("click", function(e){
+    iscroll.zoom(2);
+  }, false);
+  setTimeout(function(){
+    scroller.zoom(0.5);
+    iscroll.zoom(0.5);
+  }, 300)
+}
+</script>
+</body>
+</html>

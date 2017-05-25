@@ -577,11 +577,9 @@ IScroll.prototype = {
         if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
             return;
         }
-
         if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
             e.preventDefault();
         }
-
         var point = e.changedTouches ? e.changedTouches[0] : e,
             momentumX,
             momentumY,

@@ -28,7 +28,7 @@ const defaultOptions = {
   bounce: true,
   bounceTime: 480,
   duration: 300,
-
+  useTransition: true,
   preventDefault: true,
 
   bindToWrapper: true
@@ -37,6 +37,35 @@ const defaultOptions = {
  * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
  *
  */
+var utils = (function () {
+    var me = {}
+    var _elementStyle = document.createElement('div').style;
+    var _vendor = (function () {
+        var vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'],
+            transform,
+            i = 0,
+            l = vendors.length;
+
+        for ( ; i < l; i++ ) {
+            transform = vendors[i] + 'ransform';
+            if ( transform in _elementStyle ) return vendors[i].substr(0, vendors[i].length-1);
+        }
+
+        return false;
+    })();
+
+    function _prefixStyle (style) {
+        if ( _vendor === false ) return false;
+        if ( _vendor === '' ) return style;
+        return _vendor + style.charAt(0).toUpperCase() + style.substr(1);
+    }
+    Object.assign(me.style = {}, {
+      transform: _prefixStyle('transform'),
+      transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
+      transitionDuration: _prefixStyle('transitionDuration'),
+    })
+    return me
+})()
 class WeScroll {
   /**
    * create a WeScroll instance
@@ -47,6 +76,8 @@ class WeScroll {
    */
   constructor(el, options) {
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el
+    this.scroller = this.wrapper.children[0]
+    this.scrollerStyle = this.scroller.style
     this.options = assign({}, defaultOptions, options)
     this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault
     const margin = this.options.margin
@@ -205,7 +236,6 @@ class WeScroll {
     if (this.options.preventDefault) {
       e.preventDefault()
     }
-
     let newX = Math.round(this.x),
       newY = Math.round(this.y),
       time = 0,
@@ -427,6 +457,7 @@ class WeScroll {
     }
   }
   _animate(destX, destY, duration, easingFn) {
+
     let that = this,
       startX = this.x,
       startY = this.y,
@@ -458,10 +489,25 @@ class WeScroll {
     this.isAnimating = true
     step()
   }
+  _transitionTimingFunction(easing) {
+    console.log('utils', utils)
+      console.log('scrollerStyle', this.scrollerStyle)
+    this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
+  }
+  _transitionTime(time) {
+    time = time || 0
+
+    var durationProp = utils.style.transitionDuration
+    this.scrollerStyle[durationProp] = time + 'ms'
+  }
   _scrollTo(x, y, time, easing) {
     easing = easing || this.easingFn
-
-    if (!time) {
+    var transitionType = this.options.useTransition && easing
+    if (!time || transitionType) {
+      if (transitionType) {
+        this._transitionTimingFunction(easing)
+        this._transitionTime(time)
+      }
       this._render(x, y)
       this.observer.trigger('scrollEnd')
     } else {
@@ -620,5 +666,4 @@ class WeScroll {
     }
   }
 }
-
 export default WeScroll

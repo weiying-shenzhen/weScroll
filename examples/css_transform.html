@@ -31,6 +31,7 @@
       height: 250px;
       text-align: center;
       background-color: red;
+      transform-origin: 0px 0px 0px;
     }
   </style>
 </head>
@@ -47,7 +48,7 @@
     </div>
   </div>
 </div>
-<script async type="text/javascript" src="./lib/weScroll.min.js"></script>
+<script async type="text/javascript" src="../dist/weScroll.js"></script>
 <script async type="text/javascript" src="./lib/iscroll-zoom.js"></script>
 <script type="text/javascript">
 window.onload = function(){
@@ -86,6 +87,7 @@ window.onload = function(){
     zoomMax: 2,
     click: true,
     tap: true,
+    // useTransition: false
   });
   wrapper.addEventListener("tap", function(e){
     scroller.zoom(2);
@@ -93,10 +95,10 @@ window.onload = function(){
   iscrollEle.addEventListener("click", function(e){
     iscroll.zoom(2);
   }, false);
-  setTimeout(function(){
-    scroller.zoom(0.5);
-    iscroll.zoom(0.5);
-  }, 300)
+//  setTimeout(function(){
+//    scroller.zoom(1.5);
+//    iscroll.zoom(1.5);
+//  }, 300)
 }
 </script>
 </body>

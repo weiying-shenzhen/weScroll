@@ -798,7 +798,6 @@ IScroll.prototype = {
 
     scrollTo: function (x, y, time, easing) {
         easing = easing || utils.ease.circular;
-
         this.isInTransition = this.options.useTransition && time > 0;
         var transitionType = this.options.useTransition && easing.style;
         if ( !time || transitionType ) {
@@ -1166,7 +1165,6 @@ IScroll.prototype = {
         } else if ( newY < this.maxScrollY ) {
             newY = this.maxScrollY;
         }
-
         if ( this.x != newX || this.y != newY ) {
             this.scrollTo(newX, newY, this.options.bounceTime);
         }

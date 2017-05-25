@@ -464,7 +464,6 @@ var WeScroll = function () {
       }
 
       this._scrollTo(newX, newY); // ensures that the last position is rounded
-
       // we scrolled less than 10 pixels
       if (!this.moved) {
         if (this.options.tap && !this.scaled) {
@@ -536,7 +535,7 @@ var WeScroll = function () {
 
       if (x === this.x && y === this.y) return false;
 
-      this._scrollTo(x, y, time, ease.circular);
+      this._scrollTo(x, y, time, this.easingFn);
 
       return true;
     }
@@ -724,8 +723,9 @@ var WeScroll = function () {
             easing = void 0;
 
         if (now >= destTime) {
-          that.isAnimating = false;
           that._render(destX, destY);
+          that.isAnimating = false;
+          that.observer.trigger('scrollEnd');
           return;
         }
 
@@ -750,7 +750,6 @@ var WeScroll = function () {
 
       if (!time) {
         this._render(x, y);
-        this.observer.trigger('scrollEnd');
       } else {
         this._animate(x, y, time, easing);
       }

@@ -490,8 +490,6 @@ class WeScroll {
     step()
   }
   _transitionTimingFunction(easing) {
-    console.log('utils', utils)
-      console.log('scrollerStyle', this.scrollerStyle)
     this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
   }
   _transitionTime(time) {

@@ -777,8 +777,6 @@ var WeScroll = function () {
   }, {
     key: '_transitionTimingFunction',
     value: function _transitionTimingFunction(easing) {
-      console.log('utils', utils);
-      console.log('scrollerStyle', this.scrollerStyle);
       this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
     }
   }, {

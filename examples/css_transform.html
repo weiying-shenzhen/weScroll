@@ -23,6 +23,7 @@
     .content {
       width: 100vw;
       height: 250px;
+      text-align: center;
       background-color: red;
       transform-origin: 0px 0px 0px;
     }
@@ -93,10 +94,15 @@ window.onload = function(){
   iscrollEle.addEventListener("click", function(e){
     iscroll.zoom(2);
   }, false);
-  setTimeout(function(){
-    scroller.zoom(0.5);
-    iscroll.zoom(0.5);
-  }, 300)
+  var events = ["scrollStart", "scrollEnd", "scrollCancel", "zoomStart", "zoomEnd"];
+  events.forEach(function(event){
+    scroller.on(event, function(){
+      alert("weScroll:" + event);
+    })
+    iscroll.on(event, function(){
+      alert("iscroll:" + event);
+    })
+  })
 }
 </script>
 </body>

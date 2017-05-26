@@ -63,6 +63,7 @@ class WeScroll {
     this.y = 0
     this.directionX = 0
     this.directionY = 0
+    this.options.freeScroll = this.options.freeScroll && this.options.eventPassthrough
     this.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax)
 
     this._init()
@@ -154,24 +155,31 @@ class WeScroll {
     if (timestamp - this.endTime > 300 && (absDistX < 10 && absDistY < 10)) {
       return
     }
-
-    // If you are scrolling in one direction lock the other
-    if (!this.directionLocked) {
-      if (absDistX > absDistY + this.options.directionLockThreshold) {
-        this.directionLocked = 'h' // lock horizontally
-      } else if (absDistY >= absDistX + this.options.directionLockThreshold) {
-        this.directionLocked = 'v' // lock vertically
+    if (!this.directionLocked && !this.options.freeScroll) {
+      if ( absDistX > absDistY + this.options.directionLockThreshold ) {
+        this.directionLocked = 'h'
+      } else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
+        this.directionLocked = 'v'
       } else {
-        this.directionLocked = 'n' // no lock
+        this.directionLocked = 'n'  // no lock
       }
     }
 
-    if (this.directionLocked === 'h') {
+    if (this.directionLocked == 'h') {
+      if (this.options.eventPassthrough == 'vertical') {
+        e.preventDefault()
+      } else if (this.options.eventPassthrough == 'horizontal') {
+        return
+      }
       deltaY = 0
-    } else if (this.directionLocked === 'v') {
-      deltaX = 0
+     } else if (this.directionLocked == 'v') {
+      if (this.options.eventPassthrough == 'horizontal') {
+        e.preventDefault()
+      } else if (this.options.eventPassthrough == 'vertical') {
+        return
+      }
+        deltaX = 0
     }
-
     newX = this.x + deltaX
     newY = this.y + deltaY
 

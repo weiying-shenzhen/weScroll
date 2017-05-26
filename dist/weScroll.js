@@ -238,6 +238,38 @@ var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || 
   window.setTimeout(callback, 1000 / 60);
 };
 
+/**
+ * Created by shen on 2017/5/25.
+ */
+var polyfill = (function () {
+    var me = {};
+    var _elementStyle = document.createElement('div').style;
+    var _vendor = function () {
+        var vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'],
+            transform,
+            i = 0,
+            l = vendors.length;
+
+        for (; i < l; i++) {
+            transform = vendors[i] + 'ransform';
+            if (transform in _elementStyle) return vendors[i].substr(0, vendors[i].length - 1);
+        }
+
+        return false;
+    }();
+    function _prefixStyle(style) {
+        if (_vendor === false) return false;
+        if (_vendor === '') return style;
+        return _vendor + style.charAt(0).toUpperCase() + style.substr(1);
+    }
+    Object.assign(me.style = {}, {
+        transform: _prefixStyle('transform'),
+        transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
+        transitionDuration: _prefixStyle('transitionDuration')
+    });
+    return me;
+})();
+
 var defaultOptions = {
   zoomMin: 1,
   zoomMax: 4,
@@ -264,35 +296,6 @@ var defaultOptions = {
  * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
  *
  */
-var utils = function () {
-  var me = {};
-  var _elementStyle = document.createElement('div').style;
-  var _vendor = function () {
-    var vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'],
-        transform,
-        i = 0,
-        l = vendors.length;
-
-    for (; i < l; i++) {
-      transform = vendors[i] + 'ransform';
-      if (transform in _elementStyle) return vendors[i].substr(0, vendors[i].length - 1);
-    }
-
-    return false;
-  }();
-
-  function _prefixStyle(style) {
-    if (_vendor === false) return false;
-    if (_vendor === '') return style;
-    return _vendor + style.charAt(0).toUpperCase() + style.substr(1);
-  }
-  Object.assign(me.style = {}, {
-    transform: _prefixStyle('transform'),
-    transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
-    transitionDuration: _prefixStyle('transitionDuration')
-  });
-  return me;
-}();
 
 var WeScroll = function () {
   /**
@@ -363,6 +366,17 @@ var WeScroll = function () {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = null;
       this.observer.trigger('destroy');
+    }
+  }, {
+    key: '_transitionEnd',
+    value: function _transitionEnd(e) {
+      if (e.target != this.scroller || !this.isInTransition) {
+        return;
+      }
+      this._transitionTime();
+      if (!this.resetPosition(this.options.bounceTime)) {
+        this.isInTransition = false;
+      }
     }
   }, {
     key: '_start',
@@ -469,15 +483,29 @@ var WeScroll = function () {
         this.startX = this.x;
         this.startY = this.y;
       }
-
       this._render(newX, newY);
       this.moved = true;
+    }
+  }, {
+    key: '_endResetPosition',
+    value: function _endResetPosition() {
+      var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      var _adjustPosition2 = this._adjustPosition(this.x, this.y),
+          _adjustPosition3 = slicedToArray(_adjustPosition2, 2),
+          x = _adjustPosition3[0],
+          y = _adjustPosition3[1];
+
+      if (x == this.x && y == this.y) {
+        return false;
+      }
+      this._scrollTo(x, y, time);
+      return true;
     }
   }, {
     key: '_end',
     value: function _end(e) {
       if (!this.enabled) return;
-
       if (this.options.preventDefault) {
         e.preventDefault();
       }
@@ -485,11 +513,9 @@ var WeScroll = function () {
           newY = Math.round(this.y),
           time = 0,
           easing = '';
-
       this.endTime = Date.now();
-
       // reset if we are outside of the boundaries
-      if (this.resetPosition(this.options.bounceTime)) {
+      if (this._endResetPosition(this.options.bounceTime)) {
         return;
       }
 
@@ -512,7 +538,6 @@ var WeScroll = function () {
         if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
           easing = this.easingFn;
         }
-
         this._scrollTo(newX, newY, time, easing);
         return;
       }
@@ -535,7 +560,6 @@ var WeScroll = function () {
     value: function _adjustPosition(x, y) {
       var newX = x,
           newY = y;
-
       if (newX > this.options.marginLeft) {
         newX = this.options.marginLeft;
       } else if (newX < this.maxScrollX) {
@@ -559,15 +583,14 @@ var WeScroll = function () {
     value: function resetPosition() {
       var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-      var _adjustPosition2 = this._adjustPosition(this.x, this.y),
-          _adjustPosition3 = slicedToArray(_adjustPosition2, 2),
-          x = _adjustPosition3[0],
-          y = _adjustPosition3[1];
+      var _adjustPosition4 = this._adjustPosition(this.x, this.y),
+          _adjustPosition5 = slicedToArray(_adjustPosition4, 2),
+          x = _adjustPosition5[0],
+          y = _adjustPosition5[1];
 
       if (x === this.x && y === this.y) return false;
 
       this._scrollTo(x, y, time, ease.circular);
-
       return true;
     }
     /**
@@ -602,6 +625,7 @@ var WeScroll = function () {
       this.wrapperHeight = this.wrapper.clientHeight;
       this.wrapperOffset = offset(this.wrapper);
       this._refreshScroller();
+      this.resetPosition();
       this.observer.trigger('refresh');
     }
   }, {
@@ -624,7 +648,8 @@ var WeScroll = function () {
 
       var render = function render() {
         this.options.render(x, y, this.scale);
-
+        // console.log('this.x', this.x)
+        // console.log('this.y', this.y)
         this.x = x;
         this.y = y;
 
@@ -705,10 +730,10 @@ var WeScroll = function () {
       var x = this.originX - this.originX * lastScale + this.startX;
       var y = this.originY - this.originY * lastScale + this.startY;
 
-      var _adjustPosition4 = this._adjustPosition(x, y),
-          _adjustPosition5 = slicedToArray(_adjustPosition4, 2),
-          newX = _adjustPosition5[0],
-          newY = _adjustPosition5[1];
+      var _adjustPosition6 = this._adjustPosition(x, y),
+          _adjustPosition7 = slicedToArray(_adjustPosition6, 2),
+          newX = _adjustPosition7[0],
+          newY = _adjustPosition7[1];
 
       if (this.x !== newX || this.y !== newY) {
         this._scrollTo(newX, newY, this.options.bounceTime);
@@ -728,10 +753,10 @@ var WeScroll = function () {
       destX = this.wrapperWidth / 2 - destX;
       destY = this.wrapperHeight / 2 - destY;
 
-      var _adjustPosition6 = this._adjustPosition(destX, destY),
-          _adjustPosition7 = slicedToArray(_adjustPosition6, 2),
-          newX = _adjustPosition7[0],
-          newY = _adjustPosition7[1];
+      var _adjustPosition8 = this._adjustPosition(destX, destY),
+          _adjustPosition9 = slicedToArray(_adjustPosition8, 2),
+          newX = _adjustPosition9[0],
+          newY = _adjustPosition9[1];
 
       return {
         x: newX,
@@ -777,20 +802,21 @@ var WeScroll = function () {
   }, {
     key: '_transitionTimingFunction',
     value: function _transitionTimingFunction(easing) {
-      this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
+      this.scrollerStyle[polyfill.style.transitionTimingFunction] = easing;
     }
   }, {
     key: '_transitionTime',
     value: function _transitionTime(time) {
       time = time || 0;
 
-      var durationProp = utils.style.transitionDuration;
+      var durationProp = polyfill.style.transitionDuration;
       this.scrollerStyle[durationProp] = time + 'ms';
     }
   }, {
     key: '_scrollTo',
     value: function _scrollTo(x, y, time, easing) {
       easing = easing || this.easingFn;
+      this.isInTransition = this.options.useTransition && time > 0;
       var transitionType = this.options.useTransition && easing;
       if (!time || transitionType) {
         if (transitionType) {
@@ -822,10 +848,10 @@ var WeScroll = function () {
       x = -x * this.scale + this.wrapperWidth / 2;
       y = -y * this.scale + this.wrapperHeight / 2;
 
-      var _adjustPosition8 = this._adjustPosition(x, y),
-          _adjustPosition9 = slicedToArray(_adjustPosition8, 2),
-          newX = _adjustPosition9[0],
-          newY = _adjustPosition9[1];
+      var _adjustPosition10 = this._adjustPosition(x, y),
+          _adjustPosition11 = slicedToArray(_adjustPosition10, 2),
+          newX = _adjustPosition11[0],
+          newY = _adjustPosition11[1];
 
       this._scrollTo(newX, newY, time, easing);
     }
@@ -925,6 +951,9 @@ var WeScroll = function () {
           eventType(target, type, handleFunc);
         });
       }
+      if (this.options.useTransition) {
+        eventType(this.wrapper, 'transitionend', handleFunc);
+      }
     }
   }, {
     key: '_handleEvent',
@@ -962,6 +991,12 @@ var WeScroll = function () {
             return;
           }
           this._end(e);
+          break;
+        case 'transitionend':
+        case 'webkitTransitionEnd':
+        case 'oTransitionEnd':
+        case 'MSTransitionEnd':
+          this._transitionEnd(e);
           break;
         case 'orientationchange':
         case 'resize':

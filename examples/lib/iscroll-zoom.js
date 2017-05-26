@@ -558,7 +558,6 @@ IScroll.prototype = {
         }
 
         this.moved = true;
-
         this._translate(newX, newY);
 
 /* REPLACE START: _move */
@@ -594,12 +593,11 @@ IScroll.prototype = {
         this.isInTransition = 0;
         this.initiated = 0;
         this.endTime = utils.getTime();
-
         // reset if we are outside of the boundaries
         if ( this.resetPosition(this.options.bounceTime) ) {
             return;
         }
-
+        console.log('continue')
         this.scrollTo(newX, newY);  // ensures that the last position is rounded
 
         // we scrolled less than 10 pixels
@@ -631,7 +629,6 @@ IScroll.prototype = {
             this.isInTransition = 1;
         }
 
-
         if ( this.options.snap ) {
             var snap = this._nearestSnap(newX, newY);
             this.currentPage = snap;
@@ -649,13 +646,11 @@ IScroll.prototype = {
         }
 
 // INSERT POINT: _end
-
         if ( newX != this.x || newY != this.y ) {
             // change easing function when scroller goes out of the boundaries
             if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
                 easing = utils.ease.quadratic;
             }
-
             this.scrollTo(newX, newY, time, easing);
             return;
         }
@@ -676,9 +671,7 @@ IScroll.prototype = {
     resetPosition: function (time) {
         var x = this.x,
             y = this.y;
-
         time = time || 0;
-
         if ( !this.hasHorizontalScroll || this.x > 0 ) {
             x = 0;
         } else if ( this.x < this.maxScrollX ) {
@@ -690,7 +683,8 @@ IScroll.prototype = {
         } else if ( this.y < this.maxScrollY ) {
             y = this.maxScrollY;
         }
-
+        console.log('x', x)
+        console.log('maxScrollX', this.maxScrollX)
         if ( x == this.x && y == this.y ) {
             return false;
         }
@@ -874,7 +868,6 @@ IScroll.prototype = {
 
     _transitionTimingFunction: function (easing) {
         this.scrollerStyle[utils.style.transitionTimingFunction] = easing;
-
 
         if ( this.indicators ) {
             for ( var i = this.indicators.length; i--; ) {

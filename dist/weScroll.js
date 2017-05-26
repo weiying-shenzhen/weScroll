@@ -256,6 +256,8 @@ var defaultOptions = {
   bounceTime: 480,
   duration: 300,
 
+  freeScroll: false,
+
   preventDefault: true,
 
   bindToWrapper: true
@@ -293,7 +295,6 @@ var WeScroll = function () {
     this.y = 0;
     this.directionX = 0;
     this.directionY = 0;
-    this.options.freeScroll = this.options.freeScroll && this.options.eventPassthrough;
     this.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);
 
     this._init();
@@ -409,18 +410,8 @@ var WeScroll = function () {
       }
 
       if (this.directionLocked == 'h') {
-        if (this.options.eventPassthrough == 'vertical') {
-          e.preventDefault();
-        } else if (this.options.eventPassthrough == 'horizontal') {
-          return;
-        }
         deltaY = 0;
       } else if (this.directionLocked == 'v') {
-        if (this.options.eventPassthrough == 'horizontal') {
-          e.preventDefault();
-        } else if (this.options.eventPassthrough == 'vertical') {
-          return;
-        }
         deltaX = 0;
       }
       newX = this.x + deltaX;

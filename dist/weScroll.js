@@ -374,9 +374,6 @@ var WeScroll = function () {
         return;
       }
       this._transitionTime();
-      if (!this.resetPosition(this.options.bounceTime)) {
-        this.isInTransition = false;
-      }
     }
   }, {
     key: '_start',
@@ -487,22 +484,6 @@ var WeScroll = function () {
       this.moved = true;
     }
   }, {
-    key: '_endResetPosition',
-    value: function _endResetPosition() {
-      var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-      var _adjustPosition2 = this._adjustPosition(this.x, this.y),
-          _adjustPosition3 = slicedToArray(_adjustPosition2, 2),
-          x = _adjustPosition3[0],
-          y = _adjustPosition3[1];
-
-      if (x == this.x && y == this.y) {
-        return false;
-      }
-      this._scrollTo(x, y, time);
-      return true;
-    }
-  }, {
     key: '_end',
     value: function _end(e) {
       if (!this.enabled) return;
@@ -514,11 +495,11 @@ var WeScroll = function () {
           time = 0,
           easing = '';
       this.endTime = Date.now();
+      this.isInTransition = 0;
       // reset if we are outside of the boundaries
-      if (this._endResetPosition(this.options.bounceTime)) {
+      if (this.resetPosition(this.options.bounceTime)) {
         return;
       }
-
       this._scrollTo(newX, newY); // ensures that the last position is rounded
 
       // we scrolled less than 10 pixels
@@ -583,13 +564,14 @@ var WeScroll = function () {
     value: function resetPosition() {
       var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-      var _adjustPosition4 = this._adjustPosition(this.x, this.y),
-          _adjustPosition5 = slicedToArray(_adjustPosition4, 2),
-          x = _adjustPosition5[0],
-          y = _adjustPosition5[1];
+      var _adjustPosition2 = this._adjustPosition(this.x, this.y),
+          _adjustPosition3 = slicedToArray(_adjustPosition2, 2),
+          x = _adjustPosition3[0],
+          y = _adjustPosition3[1];
 
       if (x === this.x && y === this.y) return false;
-
+      console.log('x', x);
+      console.log('this.x', this.x);
       this._scrollTo(x, y, time, ease.circular);
       return true;
     }
@@ -648,8 +630,6 @@ var WeScroll = function () {
 
       var render = function render() {
         this.options.render(x, y, this.scale);
-        // console.log('this.x', this.x)
-        // console.log('this.y', this.y)
         this.x = x;
         this.y = y;
 
@@ -730,10 +710,10 @@ var WeScroll = function () {
       var x = this.originX - this.originX * lastScale + this.startX;
       var y = this.originY - this.originY * lastScale + this.startY;
 
-      var _adjustPosition6 = this._adjustPosition(x, y),
-          _adjustPosition7 = slicedToArray(_adjustPosition6, 2),
-          newX = _adjustPosition7[0],
-          newY = _adjustPosition7[1];
+      var _adjustPosition4 = this._adjustPosition(x, y),
+          _adjustPosition5 = slicedToArray(_adjustPosition4, 2),
+          newX = _adjustPosition5[0],
+          newY = _adjustPosition5[1];
 
       if (this.x !== newX || this.y !== newY) {
         this._scrollTo(newX, newY, this.options.bounceTime);
@@ -753,10 +733,10 @@ var WeScroll = function () {
       destX = this.wrapperWidth / 2 - destX;
       destY = this.wrapperHeight / 2 - destY;
 
-      var _adjustPosition8 = this._adjustPosition(destX, destY),
-          _adjustPosition9 = slicedToArray(_adjustPosition8, 2),
-          newX = _adjustPosition9[0],
-          newY = _adjustPosition9[1];
+      var _adjustPosition6 = this._adjustPosition(destX, destY),
+          _adjustPosition7 = slicedToArray(_adjustPosition6, 2),
+          newX = _adjustPosition7[0],
+          newY = _adjustPosition7[1];
 
       return {
         x: newX,
@@ -806,8 +786,8 @@ var WeScroll = function () {
     }
   }, {
     key: '_transitionTime',
-    value: function _transitionTime(time) {
-      time = time || 0;
+    value: function _transitionTime() {
+      var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
       var durationProp = polyfill.style.transitionDuration;
       this.scrollerStyle[durationProp] = time + 'ms';
@@ -848,10 +828,10 @@ var WeScroll = function () {
       x = -x * this.scale + this.wrapperWidth / 2;
       y = -y * this.scale + this.wrapperHeight / 2;
 
-      var _adjustPosition10 = this._adjustPosition(x, y),
-          _adjustPosition11 = slicedToArray(_adjustPosition10, 2),
-          newX = _adjustPosition11[0],
-          newY = _adjustPosition11[1];
+      var _adjustPosition8 = this._adjustPosition(x, y),
+          _adjustPosition9 = slicedToArray(_adjustPosition8, 2),
+          newX = _adjustPosition9[0],
+          newY = _adjustPosition9[1];
 
       this._scrollTo(newX, newY, time, easing);
     }

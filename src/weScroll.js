@@ -103,9 +103,6 @@ class WeScroll {
       return
     }
     this._transitionTime()
-    if ( !this.resetPosition(this.options.bounceTime) ) {
-      this.isInTransition = false;
-    }
   }
   _start(e) {
     if (this._ticking || !this.enabled) return
@@ -210,14 +207,6 @@ class WeScroll {
     this._render(newX, newY)
     this.moved = true
   }
-  _endResetPosition(time = 0) {
-    const [x, y] = this._adjustPosition(this.x, this.y)
-    if (x == this.x && y == this.y) {
-      return false
-    }
-    this._scrollTo(x, y, time)
-    return true
-  }
   _end(e) {
     if (!this.enabled) return
     if (this.options.preventDefault) {
@@ -228,11 +217,11 @@ class WeScroll {
       time = 0,
       easing = ''
     this.endTime = Date.now()
+    this.isInTransition = 0;
     // reset if we are outside of the boundaries
-    if ( this._endResetPosition(this.options.bounceTime) ) {
+    if ( this.resetPosition(this.options.bounceTime) ) {
       return
     }
-
     this._scrollTo(newX, newY) // ensures that the last position is rounded
 
     // we scrolled less than 10 pixels
@@ -293,7 +282,8 @@ class WeScroll {
   resetPosition(time = 0) {
     const [x, y] = this._adjustPosition(this.x, this.y)
     if (x === this.x && y === this.y) return false
-
+    console.log('x', x)
+    console.log('this.x', this.x)
     this._scrollTo(x, y, time, ease.circular)
     return true
   }
@@ -339,8 +329,6 @@ class WeScroll {
 
     let render = function() {
       this.options.render(x, y, this.scale)
-      // console.log('this.x', this.x)
-      // console.log('this.y', this.y)
       this.x = x
       this.y = y
 
@@ -475,9 +463,7 @@ class WeScroll {
   _transitionTimingFunction(easing) {
     this.scrollerStyle[polyfill.style.transitionTimingFunction] = easing;
   }
-  _transitionTime(time) {
-    time = time || 0
-
+  _transitionTime(time = 0) {
     var durationProp = polyfill.style.transitionDuration
     this.scrollerStyle[durationProp] = time + 'ms'
   }

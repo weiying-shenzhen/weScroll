@@ -590,14 +590,13 @@ IScroll.prototype = {
             time = 0,
             easing = '';
 
-        this.isInTransition = 0;
+
         this.initiated = 0;
         this.endTime = utils.getTime();
         // reset if we are outside of the boundaries
         if ( this.resetPosition(this.options.bounceTime) ) {
             return;
         }
-        console.log('continue')
         this.scrollTo(newX, newY);  // ensures that the last position is rounded
 
         // we scrolled less than 10 pixels

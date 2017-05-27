@@ -1,6 +1,6 @@
 {
   "name": "we-scroll",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Touch scroll library for Muti Touch, Zooming, based on IScroll-zom 5",
   "main": "dist/weScroll.js",
   "scripts": {

@@ -29,6 +29,8 @@ const defaultOptions = {
   bounceTime: 480,
   duration: 300,
 
+  freeScroll: false,
+
   preventDefault: true,
 
   bindToWrapper: true
@@ -154,24 +156,21 @@ class WeScroll {
     if (timestamp - this.endTime > 300 && (absDistX < 10 && absDistY < 10)) {
       return
     }
-
-    // If you are scrolling in one direction lock the other
-    if (!this.directionLocked) {
-      if (absDistX > absDistY + this.options.directionLockThreshold) {
-        this.directionLocked = 'h' // lock horizontally
-      } else if (absDistY >= absDistX + this.options.directionLockThreshold) {
-        this.directionLocked = 'v' // lock vertically
+    if (!this.directionLocked && !this.options.freeScroll) {
+      if ( absDistX > absDistY + this.options.directionLockThreshold ) {
+        this.directionLocked = 'h'
+      } else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
+        this.directionLocked = 'v'
       } else {
-        this.directionLocked = 'n' // no lock
+        this.directionLocked = 'n'  // no lock
       }
     }
 
-    if (this.directionLocked === 'h') {
+    if (this.directionLocked == 'h') {
       deltaY = 0
-    } else if (this.directionLocked === 'v') {
-      deltaX = 0
+     } else if (this.directionLocked == 'v') {
+        deltaX = 0
     }
-
     newX = this.x + deltaX
     newY = this.y + deltaY
 

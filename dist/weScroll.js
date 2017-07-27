@@ -122,6 +122,21 @@ var createClass = function () {
 
 
 
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
 
 
 
@@ -133,8 +148,13 @@ var createClass = function () {
 
 
 
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
 
-
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
 
 
 
@@ -267,7 +287,9 @@ var defaultOptions = {
  *
  */
 
-var WeScroll = function () {
+var WeScroll = function (_Observer) {
+  inherits(WeScroll, _Observer);
+
   /**
    * create a WeScroll instance
    *
@@ -278,36 +300,38 @@ var WeScroll = function () {
   function WeScroll(el, options) {
     classCallCheck(this, WeScroll);
 
-    this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
-    this.options = assign$1({}, defaultOptions, options);
-    this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
-    var margin = this.options.margin;
-    this.options.marginTop = this.options.marginTop || margin;
-    this.options.marginBottom = this.options.marginBottom || margin;
-    this.options.marginLeft = this.options.marginLeft || margin;
-    this.options.marginRight = this.options.marginRight || margin;
+    var _this = possibleConstructorReturn(this, (WeScroll.__proto__ || Object.getPrototypeOf(WeScroll)).call(this));
 
-    if (this.options.tap === true) {
-      this.options.tap = 'tap';
+    _this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
+    _this.options = assign$1({}, defaultOptions, options);
+    _this.options.preventDefault = !_this.options.eventPassthrough && _this.options.preventDefault;
+    var margin = _this.options.margin;
+    _this.options.marginTop = _this.options.marginTop || margin;
+    _this.options.marginBottom = _this.options.marginBottom || margin;
+    _this.options.marginLeft = _this.options.marginLeft || margin;
+    _this.options.marginRight = _this.options.marginRight || margin;
+
+    if (_this.options.tap === true) {
+      _this.options.tap = 'tap';
     }
 
-    this.x = 0;
-    this.y = 0;
-    this.directionX = 0;
-    this.directionY = 0;
-    this.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);
+    _this.x = 0;
+    _this.y = 0;
+    _this.directionX = 0;
+    _this.directionY = 0;
+    _this.scale = Math.min(Math.max(_this.options.startZoom, _this.options.zoomMin), _this.options.zoomMax);
 
-    this._init();
-    this.refresh();
-    this._scrollTo(this.options.startX, this.options.startY);
-    this.enable();
-    this._ticking = false;
+    _this._init();
+    _this.refresh();
+    _this._scrollTo(_this.options.startX, _this.options.startY);
+    _this.enable();
+    _this._ticking = false;
+    return _this;
   }
 
   createClass(WeScroll, [{
     key: '_init',
     value: function _init() {
-      this.observer = new Observer();
       this._initEvents();
       this._initEaseFn();
     }
@@ -333,7 +357,7 @@ var WeScroll = function () {
       this._initEvents(true);
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = null;
-      this.observer.trigger('destroy');
+      this.trigger('destroy');
     }
   }, {
     key: '_start',
@@ -357,7 +381,7 @@ var WeScroll = function () {
 
       if (this.isAnimating) {
         this.isAnimating = false;
-        this.observer.trigger('scrollEnd');
+        this.trigger('scrollEnd');
       }
 
       this.startX = this.x;
@@ -367,7 +391,7 @@ var WeScroll = function () {
       this.pointX = point.pageX;
       this.pointY = point.pageY;
 
-      this.observer.trigger('beforeScrollStart');
+      this.trigger('beforeScrollStart');
     }
   }, {
     key: '_move',
@@ -429,7 +453,7 @@ var WeScroll = function () {
       this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
       if (!this.moved) {
-        this.observer.trigger('scrollStart');
+        this.trigger('scrollStart');
       }
 
       if (timestamp - this.startTime > 300) {
@@ -471,7 +495,7 @@ var WeScroll = function () {
           }
         }
 
-        this.observer.trigger('scrollCancel');
+        this.trigger('scrollCancel');
         return;
       }
 
@@ -485,7 +509,7 @@ var WeScroll = function () {
         return;
       }
 
-      this.observer.trigger('scrollEnd');
+      this.trigger('scrollEnd');
     }
   }, {
     key: '_resize',
@@ -570,7 +594,7 @@ var WeScroll = function () {
       this.wrapperHeight = this.wrapper.clientHeight;
       this.wrapperOffset = offset(this.wrapper);
       this._refreshScroller();
-      this.observer.trigger('refresh');
+      this.trigger('refresh');
     }
   }, {
     key: '_refreshScroller',
@@ -578,7 +602,7 @@ var WeScroll = function () {
       this.scrollerWidth = Math.round((this.options.contentWidth || this.wrapperWidth) * this.scale);
       this.scrollerHeight = Math.round((this.options.contentHeight || this.wrapperHeight) * this.scale);
 
-      this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight;
+      this.maxScrollX = Math.min(this.options.marginLeft, this.wrapperWidth - this.scrollerWidth - this.options.marginRight);
       this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom);
 
       this.endTime = 0;
@@ -617,7 +641,7 @@ var WeScroll = function () {
       this.originX = Math.abs(e.touches[0].pageX + e.touches[1].pageX) / 2 + this.wrapperOffset.left - this.x;
       this.originY = Math.abs(e.touches[0].pageY + e.touches[1].pageY) / 2 + this.wrapperOffset.top - this.y;
 
-      this.observer.trigger('zoomStart');
+      this.trigger('zoomStart');
     }
   }, {
     key: '_zoom',
@@ -685,7 +709,7 @@ var WeScroll = function () {
       this.scaled = false;
       this.zoomEndTime = Date.now();
 
-      this.observer.trigger('zoomEnd');
+      this.trigger('zoomEnd');
     }
   }, {
     key: '_getDestinationPosition',
@@ -724,7 +748,7 @@ var WeScroll = function () {
         if (now >= destTime) {
           that._render(destX, destY);
           that.isAnimating = false;
-          that.observer.trigger('scrollEnd');
+          that.trigger('scrollEnd');
           return;
         }
 
@@ -842,16 +866,6 @@ var WeScroll = function () {
       step();
     }
   }, {
-    key: 'on',
-    value: function on(eventType, fn) {
-      this.observer.on(eventType, fn);
-    }
-  }, {
-    key: 'off',
-    value: function off(eventType, fn) {
-      this.observer.off(eventType, fn);
-    }
-  }, {
     key: '_initEvents',
     value: function _initEvents(remove) {
       var eventType = remove ? removeEvent : addEvent,
@@ -923,7 +937,7 @@ var WeScroll = function () {
     }
   }]);
   return WeScroll;
-}();
+}(Observer);
 
 return WeScroll;
 

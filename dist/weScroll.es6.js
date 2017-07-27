@@ -165,7 +165,7 @@ const defaultOptions = {
  * weScroll: Canvas scroll library for Muti Touch, Zooming, based on IScroll-zom 5
  *
  */
-class WeScroll {
+class WeScroll extends Observer {
   /**
    * create a WeScroll instance
    *
@@ -174,6 +174,7 @@ class WeScroll {
    *
    */
   constructor(el, options) {
+    super();
     this.wrapper = typeof el === 'string' ? document.querySelector(el) : el;
     this.options = assign$1({}, defaultOptions, options);
     this.options.preventDefault = !this.options.eventPassthrough && this.options.preventDefault;
@@ -200,7 +201,6 @@ class WeScroll {
     this._ticking = false;
   }
   _init() {
-    this.observer = new Observer();
     this._initEvents();
     this._initEaseFn();
   }
@@ -222,7 +222,7 @@ class WeScroll {
     this._initEvents(true);
     clearTimeout(this.resizeTimeout);
     this.resizeTimeout = null;
-    this.observer.trigger('destroy');
+    this.trigger('destroy');
   }
   _start(e) {
     if (this._ticking || !this.enabled) return
@@ -244,7 +244,7 @@ class WeScroll {
 
     if (this.isAnimating) {
       this.isAnimating = false;
-      this.observer.trigger('scrollEnd');
+      this.trigger('scrollEnd');
     }
 
     this.startX = this.x;
@@ -254,7 +254,7 @@ class WeScroll {
     this.pointX = point.pageX;
     this.pointY = point.pageY;
 
-    this.observer.trigger('beforeScrollStart');
+    this.trigger('beforeScrollStart');
   }
   _move(e) {
     if (!this.enabled || this._ticking) return
@@ -312,7 +312,7 @@ class WeScroll {
     this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
     if (!this.moved) {
-      this.observer.trigger('scrollStart');
+      this.trigger('scrollStart');
     }
 
     if (timestamp - this.startTime > 300) {
@@ -355,13 +355,16 @@ class WeScroll {
         }
       }
 
-      this.observer.trigger('scrollCancel');
+      this.trigger('scrollCancel');
       return
     }
 
     if (newX !== this.x || newY !== this.y) {
       // change easing function when scroller goes out of the boundaries
-      if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
+      if (newX > this.options.marginLeft ||
+          newX < this.maxScrollX ||
+          newY > this.options.marginTop ||
+          newY < this.maxScrollY) {
         easing = this.easingFn;
       }
 
@@ -369,7 +372,7 @@ class WeScroll {
       return
     }
 
-    this.observer.trigger('scrollEnd');
+    this.trigger('scrollEnd');
   }
   _resize() {
     let that = this;
@@ -433,13 +436,13 @@ class WeScroll {
     this.wrapperHeight = this.wrapper.clientHeight;
     this.wrapperOffset = offset(this.wrapper);
     this._refreshScroller();
-    this.observer.trigger('refresh');
+    this.trigger('refresh');
   }
   _refreshScroller(){
     this.scrollerWidth = Math.round((this.options.contentWidth || this.wrapperWidth) * this.scale);
     this.scrollerHeight = Math.round((this.options.contentHeight || this.wrapperHeight) * this.scale);
 
-    this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight;
+    this.maxScrollX = Math.min(this.options.marginLeft, this.wrapperWidth - this.scrollerWidth - this.options.marginRight);
     this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom);
 
     this.endTime = 0;
@@ -474,7 +477,7 @@ class WeScroll {
     this.originX = Math.abs(e.touches[0].pageX + e.touches[1].pageX) / 2 + this.wrapperOffset.left - this.x;
     this.originY = Math.abs(e.touches[0].pageY + e.touches[1].pageY) / 2 + this.wrapperOffset.top - this.y;
 
-    this.observer.trigger('zoomStart');
+    this.trigger('zoomStart');
   }
   _zoom(e) {
     if (!this.enabled) return
@@ -534,7 +537,7 @@ class WeScroll {
     this.scaled = false;
     this.zoomEndTime = Date.now();
 
-    this.observer.trigger('zoomEnd');
+    this.trigger('zoomEnd');
   }
   _getDestinationPosition(x, y) {
     let destX = x === undefined ? this.scrollerWidth / 2 : x * this.scale;
@@ -565,7 +568,7 @@ class WeScroll {
       if (now >= destTime) {
         that._render(destX, destY);
         that.isAnimating = false;
-        that.observer.trigger('scrollEnd');
+        that.trigger('scrollEnd');
         return
       }
 
@@ -670,12 +673,6 @@ class WeScroll {
     }
     this.isAnimating = true;
     step();
-  }
-  on(eventType, fn){
-    this.observer.on(eventType, fn);
-  }
-  off(eventType, fn){
-    this.observer.off(eventType, fn);
   }
   _initEvents(remove) {
     const eventType = remove ? removeEvent : addEvent,

@@ -235,7 +235,10 @@ class WeScroll extends Observer {
 
     if (newX !== this.x || newY !== this.y) {
       // change easing function when scroller goes out of the boundaries
-      if (newX > this.options.marginLeft || newX < this.maxScrollX || newY > this.options.marginTop || newY < this.maxScrollY) {
+      if (newX > this.options.marginLeft ||
+          newX < this.maxScrollX ||
+          newY > this.options.marginTop ||
+          newY < this.maxScrollY) {
         easing = this.easingFn
       }
 
@@ -313,7 +316,7 @@ class WeScroll extends Observer {
     this.scrollerWidth = Math.round((this.options.contentWidth || this.wrapperWidth) * this.scale)
     this.scrollerHeight = Math.round((this.options.contentHeight || this.wrapperHeight) * this.scale)
 
-    this.maxScrollX = this.wrapperWidth - this.scrollerWidth - this.options.marginRight
+    this.maxScrollX = Math.min(this.options.marginLeft, this.wrapperWidth - this.scrollerWidth - this.options.marginRight)
     this.maxScrollY = Math.min(this.options.marginTop, this.wrapperHeight - this.scrollerHeight - this.options.marginBottom)
 
     this.endTime = 0
